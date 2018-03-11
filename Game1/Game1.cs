@@ -147,7 +147,7 @@ namespace Game1
                 {
                     lowGrass.Add(new LowGrass(lowgrass, new Vector2(lowGrass[lowGrass.Count - 1].position.X + lowgrass.Width, lowGrass[lowGrass.Count - 1].position.Y), speedX, Color.White));
                 }
-                if (randresult == 2 && score >= 0)
+                if (randresult == 2 && score >= 400)
                 {
                     tigers.Add(new AnimatedSprite(tigersprite, new Vector2(1831, 130), Color.White, tigerframes, new Vector4(30, 20, 40, 30)));
                 }

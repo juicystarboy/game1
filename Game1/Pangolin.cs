@@ -59,7 +59,7 @@ namespace Game1
                 y = 0;
                 speedY = 0;
             }
-            if(elapsedGameTime >= TimeSpan.FromMilliseconds(250))
+            if(elapsedGameTime >= TimeSpan.FromMilliseconds(100) && grounded)
             {
                 if(currentframe == 0)
                 {

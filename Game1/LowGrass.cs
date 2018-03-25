@@ -14,7 +14,7 @@ namespace Game1
         
 
         public float speed;
-
+        public Vector2 prevpos;
         
 
         public LowGrass(Texture2D image, Vector2 position, float speed, Color color) : base(image, position, color)
@@ -25,6 +25,7 @@ namespace Game1
 
         public void move()
         {
+            prevpos = position;
             position.X -= speed;
         }
 

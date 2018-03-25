@@ -26,13 +26,23 @@ namespace Game1
         int speedX = 10;
         int tigerspeed = 15;
         int score = 0;
+        int pb = 0;
         int scoredelay = 0;
         Pangolin pangolin;
         List<Rectangle> frames;
         List<Rectangle> tigerframes;
-
+        TimeSpan frameupdate;
         TimeSpan elapsedGameTime;
         TimeSpan addNewGrass = TimeSpan.FromMilliseconds(100);
+        int tigerscore = 200;
+        int nightscore = 400;
+        Color color;
+        Color background = Color.White;
+        public float lerpAmount = .01f;
+        Color nightColor;
+        Color originalColor;
+        Color nightBackgroundColor;
+        Color originalBackgroundColor;
 
         public Game1()
         {
@@ -78,11 +88,16 @@ namespace Game1
             tigerframes.Add(new Rectangle(356, 200, 178, 100));
             pangolinsprite = Content.Load<Texture2D>("pangolin grey sprite sheet");
             tigersprite = Content.Load<Texture2D>("tigr sprite sheet");
-            lowgrass = Content.Load<Texture2D>("dry grass black");
+            lowgrass = Content.Load<Texture2D>("dry grass white");
             lowGrass = new List<LowGrass>();
             tigers = new List<AnimatedSprite>();
             pangolin = new Pangolin(pangolinsprite, new Vector2(0, GraphicsDevice.Viewport.Height - pangolinsprite.Height), Color.White, frames, new Vector4(0, 0, 0, 0));
             font = Content.Load<SpriteFont>("font");
+            color = new Color(53, 53, 53);
+            originalColor = color;
+            nightColor = Color.White;
+            originalBackgroundColor = background;
+            nightBackgroundColor = Color.Black;
             // TODO: use this.Content to load your game content here
         }
 
@@ -108,6 +123,7 @@ namespace Game1
             KeyboardState ks = Keyboard.GetState();
 
             elapsedGameTime += gameTime.ElapsedGameTime;
+            frameupdate += gameTime.ElapsedGameTime;
 
             foreach (LowGrass b in lowGrass)
             {
@@ -128,6 +144,10 @@ namespace Game1
                 ks = Keyboard.GetState();
                 if (ks.IsKeyDown(Keys.Enter))
                 {
+                    if (score > pb)
+                    {
+                        pb = score;
+                    }
                     lowGrass.Clear();
                     tigers.Clear();
                     speedX = 10;
@@ -135,21 +155,26 @@ namespace Game1
                     tigerspeed = 15;
                     score = 0;
                     lost = false;
+                    color = new Color(53, 53, 53);
+                    background = Color.White;
+                    lerpAmount = 0.1f;
                 }
             }
             if (elapsedGameTime >= addNewGrass && !lost)
             {
 
-                lowGrass.Add(new LowGrass(lowgrass, new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - lowgrass.Height), speedX, Color.White));
-
                 randresult = rand.Next(0, 3);
+                if(randresult == 0 || randresult == 1)
+                {
+                    lowGrass.Add(new LowGrass(lowgrass, new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - lowgrass.Height), speedX, color));
+                }
                 if (randresult == 1)
                 {
-                    lowGrass.Add(new LowGrass(lowgrass, new Vector2(lowGrass[lowGrass.Count - 1].position.X + lowgrass.Width, lowGrass[lowGrass.Count - 1].position.Y), speedX, Color.White));
+                    lowGrass.Add(new LowGrass(lowgrass, new Vector2(lowGrass[lowGrass.Count - 1].position.X + lowgrass.Width, lowGrass[lowGrass.Count - 1].position.Y), speedX, color));
                 }
-                if (randresult == 2 && score >= 400)
+                else if (randresult == 2 && score >= tigerscore)
                 {
-                    tigers.Add(new AnimatedSprite(tigersprite, new Vector2(1831, 130), Color.White, tigerframes, new Vector4(30, 20, 40, 30)));
+                    tigers.Add(new AnimatedSprite(tigersprite, new Vector2(1831, 130), color, tigerframes, new Vector4(30, 20, 40, 30)));
                 }
                 elapsedGameTime = TimeSpan.Zero;
                 addNewGrass = TimeSpan.FromMilliseconds(rand.Next(1000, 2000));
@@ -178,13 +203,34 @@ namespace Game1
                     score++;
                     scoredelay = 0;
                 }
-                speedX = (score / 100) + 10;
+                speedX = (score / 50) + 10;
                 foreach(LowGrass b in lowGrass)
-                {
+                {                    
                     b.speed = speedX;
                 }
-                tigerspeed = speedX + 10;
+                tigerspeed = speedX + 5;
+                //pangolin.color = color;
                 pangolin.Update(gameTime);
+            }
+            if(score >= nightscore)
+            { 
+                if (lerpAmount <= 1)
+                {
+                    color = Color.Lerp(originalColor, nightColor, lerpAmount);
+                    background = Color.Lerp(originalBackgroundColor, nightBackgroundColor, lerpAmount);
+                    lerpAmount += .01f;
+                }
+                //pangolin.texture = Content.Load<Texture2D>("pangolin white sprite sheet");
+                foreach (LowGrass b in lowGrass)
+                {
+                    //b.texture = Content.Load<Texture2D>("dry grass white");
+                    b.color = color;
+                }
+                /*foreach(AnimatedSprite b in tigers)
+                {
+                    b.texture = Content.Load<Texture2D>("tigr sprite sheet inverted");
+                    
+                }*/                
             }
             scoredelay++;
             base.Update(gameTime);
@@ -196,19 +242,26 @@ namespace Game1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(background);
             spriteBatch.Begin();
             // TODO: Add your drawing code here
-            foreach (LowGrass b in lowGrass)
+            foreach(LowGrass b in lowGrass)
             {
                 b.draw(spriteBatch);
+                /*if (b.position.X != b.prevpos.X || b.speed == 0)
+                {
+                    b.draw(spriteBatch);
+                }*/
             }
-            pangolin.draw(spriteBatch);
             foreach (AnimatedSprite b in tigers)
             {
                 b.draw(spriteBatch);
             }
-            spriteBatch.DrawString(font, score.ToString(), new Vector2(0, 0), Color.Black);
+            pangolin.draw(spriteBatch);
+            spriteBatch.DrawString(font, "Score:", new Vector2(1700, 0), color);
+            spriteBatch.DrawString(font, score.ToString(), new Vector2(1700 + font.MeasureString("Score:").X + 2, 0), color);
+            spriteBatch.DrawString(font, "Best:", new Vector2(1800, 0), color);
+            spriteBatch.DrawString(font, pb.ToString(), new Vector2(1800 + font.MeasureString("Best:").X + 2, 0), color);
             base.Draw(gameTime);
 
             spriteBatch.End();

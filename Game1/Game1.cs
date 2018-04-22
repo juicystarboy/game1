@@ -25,7 +25,7 @@ namespace Game1
         int randresult;
         int speedX = 10;
         int tigerspeed = 15;
-        int score = 600;
+        int score = 0;
         int pb = 0;
         int scoredelay = 0;
         Pangolin pangolin;

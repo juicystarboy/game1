@@ -25,7 +25,7 @@ namespace Game1
         int randresult;
         int speedX = 10;
         int tigerspeed = 15;
-        int score = 0;
+        int score = 600;
         int pb = 0;
         int scoredelay = 0;
         Pangolin pangolin;
@@ -34,8 +34,8 @@ namespace Game1
         TimeSpan frameupdate;
         TimeSpan elapsedGameTime;
         TimeSpan addNewGrass = TimeSpan.FromMilliseconds(100);
-        int tigerscore = 200;
-        int nightscore = 400;
+        int tigerscore = 400;
+        int nightscore = 700;
         Color color;
         Color background = Color.White;
         public float lerpAmount = .01f;
@@ -86,12 +86,12 @@ namespace Game1
             tigerframes.Add(new Rectangle(0, 200, 178, 100));
             tigerframes.Add(new Rectangle(178, 200, 178, 100));
             tigerframes.Add(new Rectangle(356, 200, 178, 100));
-            pangolinsprite = Content.Load<Texture2D>("pangolin grey sprite sheet");
+            pangolinsprite = Content.Load<Texture2D>("pangolin white sprite sheet");
             tigersprite = Content.Load<Texture2D>("tigr sprite sheet");
             lowgrass = Content.Load<Texture2D>("dry grass white");
             lowGrass = new List<LowGrass>();
             tigers = new List<AnimatedSprite>();
-            pangolin = new Pangolin(pangolinsprite, new Vector2(0, GraphicsDevice.Viewport.Height - pangolinsprite.Height), Color.White, frames, new Vector4(0, 0, 0, 0));
+            pangolin = new Pangolin(pangolinsprite, new Vector2(0, GraphicsDevice.Viewport.Height - pangolinsprite.Height), Color.White, frames, new Vector4(75, 0, 20, 10), 0);
             font = Content.Load<SpriteFont>("font");
             color = new Color(53, 53, 53);
             originalColor = color;
@@ -174,7 +174,7 @@ namespace Game1
                 }
                 else if (randresult == 2 && score >= tigerscore)
                 {
-                    tigers.Add(new AnimatedSprite(tigersprite, new Vector2(1831, 130), color, tigerframes, new Vector4(30, 20, 40, 30)));
+                    tigers.Add(new AnimatedSprite(tigersprite, new Vector2(1831, 130), color, tigerframes, new Vector4(30, 20, 40, 30), 5 - score/200));
                 }
                 elapsedGameTime = TimeSpan.Zero;
                 addNewGrass = TimeSpan.FromMilliseconds(rand.Next(1000, 2000));
@@ -182,19 +182,21 @@ namespace Game1
             lastKS = ks;
             foreach (AnimatedSprite b in tigers)
             {
-                if (!lost)
+                if (!lost && b.framedelay >= b.framedelayamount)
                 {
                     b.currentframe++;
                     if (b.currentframe >= b.frames.Count)
                     {
                         b.currentframe = 0;
                     }
+                    b.framedelay = 0;
                 }
                 if (b.hitbox.Intersects(pangolin.hitbox))
                 {
                     lost = true;
                 }
                 b.position.X -= tigerspeed;
+                b.framedelay++;
             }
             if (!lost)
             {
@@ -209,7 +211,7 @@ namespace Game1
                     b.speed = speedX;
                 }
                 tigerspeed = speedX + 5;
-                //pangolin.color = color;
+                pangolin.color = color;
                 pangolin.Update(gameTime);
             }
             if(score >= nightscore)
@@ -262,6 +264,7 @@ namespace Game1
             spriteBatch.DrawString(font, score.ToString(), new Vector2(1700 + font.MeasureString("Score:").X + 2, 0), color);
             spriteBatch.DrawString(font, "Best:", new Vector2(1800, 0), color);
             spriteBatch.DrawString(font, pb.ToString(), new Vector2(1800 + font.MeasureString("Best:").X + 2, 0), color);
+            //spriteBatch.Draw(lowgrass, pangolin.hitbox, Color.White);
             base.Draw(gameTime);
 
             spriteBatch.End();

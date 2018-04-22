@@ -13,10 +13,13 @@ namespace Game1
         public List<Rectangle> frames;
         Vector4 hitboxoffset;
         public int currentframe;
-        public AnimatedSprite(Texture2D texture, Vector2 position, Color color, List<Rectangle> frames, Vector4 hitboxoffset) : base(texture, position, color)
+        public int framedelay = 0;
+        public int framedelayamount = 5;
+        public AnimatedSprite(Texture2D texture, Vector2 position, Color color, List<Rectangle> frames, Vector4 hitboxoffset, int framedelayamount) : base(texture, position, color)
         {
             this.frames = frames;
             this.hitboxoffset = hitboxoffset;
+            this.framedelayamount = framedelayamount;
         }
 
         public override Rectangle hitbox

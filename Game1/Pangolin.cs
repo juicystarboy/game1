@@ -14,16 +14,20 @@ namespace Game1
         float remainingJump = 2.0f;
         public int y = 0;
         int initialY = 0;
-        public override Rectangle hitbox
+        Vector4 hitboxoffset;
+
+        public Pangolin(Texture2D texture, Vector2 position, Color color, List<Rectangle> frames, Vector4 hitboxoffset, int framedelayamount) : base(texture, position, color, frames, hitboxoffset, framedelayamount)
         {
-            get { return new Rectangle((int)position.X + 75, (int)position.Y, frames[currentframe].Width - 75, frames[currentframe].Height); }
+            this.hitboxoffset = hitboxoffset;
+            initialY = (int)position.Y;
+
         }
 
-        public Pangolin(Texture2D texture, Vector2 position, Color color, List<Rectangle> frames, Vector4 hitboxoffset) : base(texture, position, color, frames, hitboxoffset)
+        public override Rectangle hitbox
         {
-            initialY = (int)position.Y;
-            
+            get { return new Rectangle((int)position.X + (int)hitboxoffset.X, (int)position.Y + (int)hitboxoffset.Y, frames[currentframe].Width - (int)hitboxoffset.X - (int)hitboxoffset.Z, frames[currentframe].Height - (int)hitboxoffset.Y - (int)hitboxoffset.W); }
         }
+
 
         public void Update(GameTime gameTime)
         {
